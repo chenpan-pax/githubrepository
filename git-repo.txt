@@ -1,0 +1,636 @@
+git repo
+私密 2018年11月23日 16:15:46 豆豆的老公 阅读数：94更多
+个人分类： qnx Linux
+编辑
+https://www.yiibai.com/git/git_push.html
+
+git show 查看某次commit的修改内容 
+
+git log --pretty=oneline   rootdir/etc/init.qcom.install_cp.sh        可列出文件的所有改动历史，注意，这里着眼于具体的一个文件，而不是git库，如果是库，那改动可多了去
+
+git log -p   rootdir/etc/init.qcom.install_cp.sh   # 查看某个文件的提交记录以及对此文件的修改
+
+git show   3fbf59af49  rootdir/etc/init.qcom.install_cp.sh       git只显示出history_commit_b中的history_commit_b_file50文件的变化、而不显示history_commit_b_file1...history_commit_b_file49文件的变化.
+
+patch -p1 < my.patch 命令：patch -p0 < my.patch
+
+-p0 就表示从当前目录，找一个叫作b的目录再在这个目录中找一个reset.txt的文件。 -p1 就表示从当前目录，忽略第一层b的目录，在当前目录中找一个reset.txt的文件。一般情况下用patch -p1 < my.patch
+
+ patch -R -p1 < 1.patch     撤销该补丁的修改效果回到打补丁前代码的状态
+
+撤销补丁还有种更方便的方法，将文件还原checkout，但这个是对文件整体的还原，该文件除补丁之外的修改也被还原了。
+
+git stash save "XX"   执行完会返回一个commmit 下次pop时候要 git reset --hard commit  否则pop失败，所以最好的命令是
+
+git stash save "当前commit+note"
+
+git stash list 
+
+git stash pop stash@{x}
+
+git diff HEAD^ HEAD^^ --name-only    这里–name-only参数只会列出变化的文件名列表.
+
+git show commit --name-only   这里–name-only参数只会列出变化的文件名列表.
+
+ 使用git format-patch生成所需要的patch:
+当前分支所有超前master的提交：
+git format-patch -M master
+某次提交以后的所有patch:
+git format-patch 4e16 --4e16指的是commit名
+从根到指定提交的所有patch:
+git format-patch --root 4e16
+某两次提交之间的所有patch:
+git format-patch 365a..4e16 --365a和4e16分别对应两次提交的名称
+某次提交（含）之前的几次提交：
+git format-patch –n 07fe --n指patch数，07fe对应提交的名称
+故，单次提交即为：
+git format-patch -1 07fe 这个最实用
+git format-patch生成的补丁文件默认从1开始顺序编号，并使用对应提交信息中的第一行作为文件名。如果使用了-- numbered-files选项，则文件名只有编号，不包含提交信息；如果指定了--stdout选项，可指定输出位置，如当所有patch输出到一个文件；可指定-o <dir>指定patch的存放目录；
+
+git log    --graph 本地分支 或者 git  --graph  log   默认查看本地当前分支提交记录。
+
+git stash drop <id> 如果想删除一个stash，
+
+git stash clear   删除所有stash，
+
+当安装完 Git 应该做的第一件事就是设置用户名称与邮件地址。这样做很重要，因为每一个 Git 的提交都会使用这些信息，并且它会写入到每一次提交中，不可更改：
+
+git config --list
+
+git config --global user.name "maxsu"
+git config --global user.email   maxsu@yiibai.com
+
+再次强调，如果使用了 --global 选项，那么该命令只需要运行一次，因为之后无论你在该系统上做任何事情， Git 都会使用这些信息。 当你想针对特定项目使用不同的用户名称与邮件地址时，可以在那个项目目录下运行不使用 --global 选项的命令来配置。
+
+git branch mybranch 创建分支： $
+git checkout mybranch 切换分支： $
+git checkout -b mybranch 创建并切换分支： $
+
+首先进入 master 分支：git checkout master
+
+查看已有的本地及远程分支：git branch -a
+
+git push origin --delete Su-modify 删除远程分支：
+
+git branch -d Su-modify 删除本地分支：
+
+git add <path>表示 add to index only files created or modified and not those deleted 
+
+
+git branch -vv 查看本地分支和远程分支追踪关系    
+
+git  branch --set-upstream my_branch origin/my_branch   使用--set-upstream去跟踪远程分支    命令的最终修改都是针对.git/config文件 
+
+git merge --no-commit  my_branch    当您想要对合并进行进一步更改时，可以使用此选项，或者想要自己编写合并提交消息。应该不要滥用这个选项来潜入到合并提交中。小修补程序，如版本名称将是可以接受的。
+
+ 
+
+git merge dev 将分支dev合并到当前分支中，自动进行新的提交：
+
+git 中怎样查看未传送(git push)到远程代码库的(git commit)提交?
+
+1,查看到未传送到远程代码库的提交次数
+
+git status
+复制代码
+
+显示结果类似于这样：
+# On branch master
+# Your branch is ahead of 'origin/master' by 2 commits.
+
+2,查看到未传送到远程代码库的提交描述/说明
+
+git cherry -v
+复制代码
+
+显示结果类似于这样：
++ b6568326134dc7d55073b289b07c4b3d64eff2e7 add default charset for table items_has_images
++ 4cba858e87752363bd1ee8309c0048beef076c60 move Savant3 class into www/includes/class/
+
+3,查看到未传送到远程代码库的提交详情
+
+git log master ^origin/master
+复制代码
+
+这是一个git log命令的过滤，^origin/master可改成其它分支。
+显示结果类似于这样：
+commit 4cba858e87752363bd1ee8309c0048beef076c60
+Author: Zam <zam@iaixue.com>
+Date:   Fri Aug 9 16:14:30 2013 +0800
+
+    move Savant3 class into www/includes/class/
+
+commit b6568326134dc7d55073b289b07c4b3d64eff2e7
+Author: Zam <zam@iaixue.com>
+Date:   Fri Aug 9 16:02:09 2013 +0800
+
+    add default charset for table items_has_images
+
+总结：
+git status 只能查看未传送提交的次数
+git cherry -v只能查看未传送提交的描述/说明
+git log master ^origin/master则可以查看未传送提交的详细信息 --------------------- 本文来自 DreamSoar 的CSDN 博客 ，全文地址请点击：https://blog.csdn.net/kakaxi2222/article/details/46011717?utm_source=copy
+
+repo的用法（zz)
+
+ 
+
+ 
+
+注：repo只是google用Python脚本写的调用git的一个脚本，主要是用来下载、管理Android项目的软件仓库。(也就是说，他是用来管理给git管理的一个个仓库的)
+
+下载 repo 的地址: http://android.git.kernel.org/repo ，可以用以下二者之一来下载 repo
+
+wget http://android.git.kernel.org/repo 
+
+或者 
+
+curl http://android.git.kernel.org/repo > ~/bin/repo  
+
+下载完成后须修改repo的权限： chmod a+x ~/bin/repo 
+
+ 
+
+用repo sync 在抓去 android source code 的时候，会经常出现一些错误导致 repo sync 中断，每次都要手动开始。 可以用如下的命令，来自动重复
+
+$?=1; 
+
+while [ $? -ne 0 ] ; 
+
+do  repo sync ; 
+
+done
+
+ 
+
+获取帮助：
+
+repo help [ command ]   //显示command 的详细的帮助信息内容
+
+示例： repo help init 来获取 repo init 的其他用法
+
+ 
+
+repo init -u URL 用以在当前目录安装 repository ，会在当前目录创建一个目录 ".repo"  -u 参数指定一个URL， 从这个URL 中取得repository 的 manifest 文件。   
+
+示例：repo init -u git://android.git.kernel.org/platform/manifest.git
+
+获取的manifest文件放在.repo目录中。命名为manifest.xml。这个文件的内容其实就是所有被git管理的仓库的列表！
+
+ 
+
+可以用 -m 参数来选择获取 repository 中的某一个特定的 manifest 文件，如果不具体指定，那么表示为默认的 namifest 文件 (default.xml)
+
+repo init -u git://android.git.kernel.org/platform/manifest.git -m dalvik-plus.xml
+
+(有诸多供我们选择的manifest文件，所有的manifest文件都放在目录.repo/manifests中，该目录本身亦被git所管理，你可以cd进去看看)
+
+ 
+
+可以用 -b 参数来指定某个manifest 分支。
+
+repo init -u git://android.git.kernel.org/platform/manifest.git -b release-1.0
+
+你会发现.repo/manifests是个被git管理的仓库，这里放的是所有的manifest文件（*.xml），因为被git管理，固然有分支，-b可以切换到你想要的分支然后再下载相关的xml文件，当然具体下载那个xml还要看-m参数了，所以如果你仅仅指定-b而没有-m的话，就是下载-b指定分支下的default.xml文件
+
+如果不指定-b参数，那么会默认使用master分支
+
+ 
+
+4. repo sync [project-list]
+
+下载最新本地工作文件，更新成功，这本地文件和repository 中的代码是一样的。 可以指定需要更新的project ， 如果不指定任何参数，会同步整个所有的项目。
+
+如果是第一次运行 repo sync ， 则这个命令相当于 git clone ，会把 repository 中的所有内容都拷贝到本地。 如果不是第一次运行 repo sync ， 则相当于 git remote update ;  git rebase origin/branch .  repo sync 会更新 .repo 下面的文件。 如果在merge 的过程中出现冲突， 这需要手动运行  git  rebase --continue
+
+ 
+
+5. repo update[ project-list ]
+
+上传修改的代码 ，如果你本地的代码有所修改，那么在运行 repo sync 的时候，会提示你上传修改的代码，所有修改的代码分支会上传到 Gerrit (基于web 的代码review 系统), Gerrit 受到上传的代码，会转换为一个个变更，从而可以让人们来review 修改的代码。
+
+ 
+
+6. repo diff [ project-list ]
+
+        显示提交的代码和当前工作目录代码之间的差异。
+
+ 
+
+7. repo download  target revision
+
+        下载特定的修改版本到本地， 例如:  repo download pltform/frameworks/base 1241 下载修改版本为 1241 的代码
+
+ 
+
+8. repo start newbranchname .
+
+        创建新的branch分支。 "." 代表当前工作的branch 分支。
+
+ 
+
+9.  repo prune [project list]
+
+        删除已经merge 的 project
+
+ 
+
+10. repo foreach [ project-lists] -c command
+
+       对每一个 project 运行 command 命令
+
+ 
+
+12. repo forall -c 
+
+这个命令会遍历所有的git仓库，并在每个仓库执行-c所指定的命令（这个被执行的命令就不限于仅仅是git命令了，而是任何被系统支持的命令，比如：ls 、 pwd 、cp 等等的 ）
+
+当我想通过这个命令遍历所有的仓库并在每个仓库执行"git checkout . "用以将每个仓库的改动都清除的时候，我这么输入命令：
+
+repo forall -c git checkout . 
+
+我发现这样根本不行。看来repo不能遍历执行checkout这个命令。今天我终于想到了另外一个命令"git reset --hard HEAD" 哈哈
+
+repo forall -c git reset --hard HEAD
+
+
+再说一个新发现：以前用repo forall 执行一些命令的时候，可能再遍历到某个仓库的时候出了问题，但是我却苦于不知道这个仓库到底是哪个！一直也没有解决。今天终于找到了。。。。  关键时候还是要看命令自己带的帮助手册呀。。。
+
+repo help forall  用这个命令查看下针对forall的帮助吧。说的很清楚，repo执行的时候加上-p参数就可以在遍历到每个仓库的时候先打印出当前的pwd，然后再继续执行-c所指定的命令。举例如下：
+
+
+repo forall -p -c git branch    
+
+ 
+
+//该命令会遍历所有仓库并打印每个仓库的分支情况，由于有了-p参数，这样便会打印出每个仓库的路径！！！
+
+ 
+
+11. repo status
+
+       显示 project 中每个仓库的状态，并打印仓库名称。
+
+ 
+
+201111071237 更新
+
+yasin.lee.x 
+
+———————————————————————————————————————————————————————
+cpp@cpp:~$ repo
+Traceback (most recent call last):
+  File "/home/cpp/bin/repo", line 91, in ?
+    import readline
+ImportError: No module named readline
+cpp@cpp:~$ 
+———————————————————————————————————————————————————————
+系统里明明有readline，可是repo脚本却无法导入，后来查到应该是python安装导致的错误，应该在python编译时加上关于readline的编译选项，应该按照如下操作安装python
+首先安装readline软件包：
+sudo apt-get install libreadline5-dev
+sudo apt-get install zlib1g-dev
+然后下载python源码进入python源码目录，编译并安装python：
+1. make distclean
+2. ./configure  --enable-readline  BASECFLAGS=-U_FORTIFY_SOURCE
+3. make -j4
+4. sudo make install
+注意，我同时发现在python-2.4.3版本是支持该编译选项的，而在3.1.3版本中是不能识别这个--enable-readline编译参数的。所以我目前使用2.4.3版本。
+
+
+--------------------- 
+作者：风中之哨 
+来源：CSDN 
+原文：https://blog.csdn.net/yasin_lee/article/details/5975068?utm_source=copy 
+版权声明：本文为博主原创文章，转载请附上博文链接！
+
+之前已经讲了Repo的基本理解，这里总结一下Repo的常用命令。
+
+repo init
+repo sync
+repo start
+repo checkout
+repo branches
+repo diff
+repo stage
+repo prune
+repo abandon
+repo status
+repo remote
+repo push
+repo forall
+1 添加环境变量
+2 合并多个分支
+3 打标签
+4 设置远程仓库
+5 创建特性分支
+repo grep
+repo manifest
+repo version
+repo upload
+repo download
+repo selfupdate
+repo help
+1. repo init
+
+repo init -u manifest_git_path -m manifest_file_name -b branch_name --repo-url=repo_url --no-repo-verify
+1
+  在当前目录下安装 Repo。这会产生一个 .repo/ 目录，目录包括装 Repo 源代码和标准 Android 清单文件的 Git 仓库。.repo/ 目录还包括 manifest.xml，是一个在 .repo/manifests/ 目录选择清单的符号链接。
+
+  选项：
+
+-u: 指定Manifest库的Git访问路径。 
+-m: 指定要使用的Manifest文件。 
+-b: 指定要使用Manifest仓库中的某个特定分支。 
+–repo-url: 指定要检查repo是否有更新的远端repoGit库的访问路径。 
+–no-repo-verify: 指定不检查repo库是否需要更新。
+2. repo sync
+
+repo sync [project_name]
+1
+  用于参照清单文件克隆并同步版本库。可以使用repo sync project_name的形式只克隆某个项目。。
+
+  实现参照清单.repo/manifests.xml克隆并同步版本库，如果版本库不存在，则相当于执行
+
+git clone
+1
+  如果版本库已经存在，则相当于执行
+
+#对每个remote源进行fetch操作
+git remote update
+#针对当前分支的跟踪分支进行rebase操作
+git rebase/origin/branch
+1
+2
+3
+4
+  选项：
+
+-d：切换指定项目回到清单修正。如果该项目目前是一个主题分支那就有帮助，但清单修正是暂时需要。 
+-s：同步到一个已知的构建 manifest-server 在当前清单指定的元素。 
+-f：继续同步其他项目，即使有项目同步失败。
+3. repo start
+
+repo start <newbranchname> [--all|<project>...]
+1
+  创建并切换分支。刚克隆下来的代码是没有分支的，repo start实际是对git checkout -b命令的封装。 
+  为指定的项目或所有的项目（若使用-all），以清单文件中为设定的分支，创建特定的分支。 
+  这条指令与git checkout -b 还是有很大区别的。 
+  · git checkout -b 是在当前所在的分支的基础上创建特性分支。 
+  · 而repo start 是在清单文件设定的分支的基础上创建特性分支。
+
+repo start stable --all
+1
+  假设清单文件中设定的分支是gingerbread-exdroid-stable，那么执行以上指令就是对所有项目，在gingerbread-exdroid-stable的基础上创建特性分支stable。
+
+repo start stable platform/build platform/bionic
+1
+  假设清单文件中设定的分支是gingerbread-exdroid-stable，那么执行以上指令就是对platform/build、platform/bionic项目，在gingerbread-exdroid-stable的基础上创建特性分支stable。
+
+4. repo checkout
+
+ <branchname> [<rpoject>...]{{{
+   repo checkout <branchname> [<project>...]
+ }}} 
+1
+2
+3
+  切换分支。 实际上是对git checkout命令的封装，但不能带-b参数，所以不能用此命令来创建特性分支。
+
+  示例：
+
+repo checkout liuq-dev
+repo checkout liuq-dev skipper/build platform/bionic
+1
+2
+5. repo branches
+
+repo branches [<project>...]
+1
+  查看分支。 
+  示例：
+
+repo branches
+repo branches skipper/build skipper/release
+#查看可切换的分支
+cd .repo/manifests
+git branch -a | cut -d / -f 3
+1
+2
+3
+4
+5
+6. repo diff
+
+repo diff [<project>...]
+1
+  查看工作区文件差异。实际是对git diff命令的封装，用于分别显示各个项目工作区下的文件差异。在 commit 和工作目录之间使用 git diff 显示明显差异的更改。 
+  示例：
+
+#查看所有项目
+repo diff
+#只查看其中的两个项目
+repo diff skipper/build skipper/release
+1
+2
+3
+4
+7. repo stage
+
+repo stage -i [<project>...]
+1
+  把文件添加到index表中。实际上是对git add –interactive命令的封装，用于挑选各个项目中的改动以加入暂存区。 
+  -i表示git add –interactive命令中的–interactive，给出一个界面供用户选择。
+
+8. repo prune
+
+repo prune [<project>...]
+1
+  删除已经合并分支。实际上是对git branch -d 命令的封装，该命令用于扫描项目的各个分支，并删除已经合并的分支。
+
+9. repo abandon
+
+repo abandon <branchname> [<rpoject>...]
+1
+  删除指定分支。实际是对git brance -D命令的封装。
+
+10. repo status
+
+repo status [<project>...]
+1
+  查看文件状态。 
+  示例：
+
+#输出skipper/build项目分支的修改状态
+repo status skipper/build
+1
+2
+每个小节的首行显示项目名称，以及所在的分支的名称。 
+每个字母表示暂存区的文件修改状态。
+字母    含义    描述
+-    无变化    没有修改，在 HEAD 和在索引中是一样的
+A    添加    不在HEAD中，在暂存区中
+M    修改    在HEAD中， 在暂存区中，内容不同
+D    删除    在HEAD中，不在暂存区
+R    重命名    不在HEAD中，在暂存区中
+C    拷贝    不在HEAD中，在暂存区，从其他文件拷贝
+T    文件状态改变    在HEAD中，在暂存区，内容相同
+U    未合并    需要冲突解决
+第二个字符表示工作区文件的更改状态。
+字母    含义    描述
+-    新/未知    不在暂存区，在工作区
+m    修改    在暂存区，在工作区，被修改
+d    删除    在暂存区，不在工作区
+两个表示状态的字母后面，显示文件名信息。如果有文件重名还会显示改变前后的文件名及文件的相似度。
+11. repo remote
+
+repo remote add <remotename> <url> [<project>...]
+repo remote rm <remotename> [<project>...]
+1
+2
+  设置远程仓库。 
+  示例：
+
+repo remote add org ssh://10.11.10.11/git_repo
+1
+  这个指令根据xml文件添加的远程分支，方便于向服务器提交代码，执行之后的build目录下看到新的远程分支org。
+
+#删除远程仓库
+repo remote rm org
+1
+2
+12. repo push
+
+repo push <remotename> [--all|<project>...]
+1
+  向服务器提交代码。repo会自己查询需要向服务器提交的项目并提示用户。 
+  示例：
+
+repo push org
+1
+13. repo forall
+
+repo forall [<project>...] -c <command>
+1
+  迭代器，可以在所有指定的项目中执行同一个shell指令。 
+  选项：
+
+-c 后面所带的参数是shell指令，即执行命令和参数。命令是通过 /bin/sh 评估的并且后面的任何参数就如 shell 位置的参数通过。 
+-p 在shell指令输出之前列出项目名称，即在指定命令的输出前显示项目标题。这是通过绑定管道到命令的stdin，stdout，和 sterr 流，并且用管道输送所有输出量到一个连续的流，显示在一个单一的页面调度会话中。 
+-v 列出执行shell指令输出的错误信息，即显示命令写到 sterr 的信息。
+  附加环境变量：
+
+REPO_PROJECT 指定项目的名称 
+REPO_PATH 指定项目在工作区的相对路径 
+REPO_REMOTE 指定项目远程仓库的名称 
+REPO_LREV 指定项目最后一次提交服务器仓库对应的哈希值 
+REPO_RREV 指定项目在克隆时的指定分支，manifest里的revision属性
+  如果-c后面所带的shell指令中有上述环境变量，则需要用单引号把shell指令括起来。
+
+13.1. 添加环境变量
+
+repo forall -c 'echo $REPO_PROJECT'
+repo forall -c 'echo $REPO_PATH'
+1
+2
+13.2. 合并多个分支
+
+repo forall -p -c git merge topic
+1
+  把所有项目都切换到master分支，执行上述指令将topic分支合并到master分支。
+
+13.3. 打标签
+
+repo forall -c git tag crane-stable-1.6
+1
+  在所有项目下打标签。
+
+13.4. 设置远程仓库
+
+repo forall -c 'git remote add korg ssh://xiong@172.16.31/$REPO_PROJECT.git'
+1
+  引用环境变量REPO_PROJECT添加远程仓库。
+
+#删除远程仓库。
+repo forall -c git remote rm korg
+1
+2
+13.5. 创建特性分支
+
+repo forall -c git branch crane-dev
+repo forall -c git checkout -b crane-dev
+1
+2
+14. repo grep
+
+repo grep {pattern | -e pattern} [<project>...]
+1
+  打印出符合某个模式的行。相当于对 git grep 的封装，用于在项目文件中进行内容查找。 
+  示例：
+
+#要找一行, 里面有#define, 并且有'MAX_PATH' 或者 'PATH_MAX':
+repo grep -e '#define' --and -−eMAXPATH−ePATHMAX−eMAXPATH−ePATHMAX
+#查找一行, 里面有 'NODE'或'Unexpected', 并且在一个文件中这两个都有的.
+repo grep --all-match -e NODE -e Unexpected
+1
+2
+3
+4
+15. repo manifest
+
+repo manifest [-o {-|NAME.xml} [-r]]
+1
+  manifest检验工具，用于显示manifest文件内容。 
+  选项:
+
+-h, –help 显示这个帮助信息后退出 
+-r, –revision-as-HEAD 把某版次存为当前的HEAD 
+-o -|NAME.xml, –output-file=-|NAME.xml 把manifest存为NAME.xml
+16. repo version
+
+repo version
+1
+  显示repo的版本号。 
+  选项:
+
+-h, –help 显示这个帮助信息后退出.
+17. repo upload
+
+repo upload [--re --cc] {[<project>]...|--replace <project>}
+1
+  repo upload 相当于git push，但是又有很大的不同。它不是将版本库改动推送到代码审核服务器（Gerrit软件架设）的特殊引用上，使用SSH协议。代码审核服务器会对推送的提交进行特殊处理，将新的提交显示为一个待审核的修改集，并进入代码审核流程，只有当审核通过后，才会合并到官方正式的版本库中。 
+  选项：
+
+-h, –help 显示帮助信息 
+-t 发送本地分支名称到Gerrit代码审核服务器 
+–replace 发送此分支的更新补丁集 
+–re=REVIEWERS 要求指定的人员进行审核 
+–cc=CC 同时发送通知到如下邮件地址
+18. repo download
+
+repo download {project change[/patchset]}...
+1
+  repo download命令主要用于代码审核者下载和评估贡献者提交的修订。 
+  贡献者的修订在Git版本库中refs/changes//引用方式命名（缺省的patchset为1），和其他Git引用一样，用git fetch获取，该引用所指向的最新的提交就是贡献者待审核的修订。 
+  使用repo download命令实际上就是用git fetch获取到对应项目的refs/changes//patchset>引用，并自动切换到对应的引用上。
+
+19. repo selfupdate
+
+repo selfupdate
+1
+  用于 repo 自身的更新。如果有新版本的repo存在, 这个命令会升级repo到最新版本。通常这个动作在repo sync时会自动去做, 所以不需要最终用户手动去执行。 
+  选项:
+
+-h, –help 显示这个帮助信息后退出. 
+–no-repo-verify 不要验证repo源码.
+20. repo help
+
+repo help [--all|command]
+1
+  显示命令的详细帮助。 
+  选项:
+
+-h, –help 显示这个帮助信息后退出 
+-a, –all 显示完整的命令列表
+参考文档： 
+http://blog.sina.com.cn/s/blog_89f592f50100vpau.html 
+https://github.com/Trawn/repo-help-zh-cn/blob/master/repo%20help%20zhcn.txt
