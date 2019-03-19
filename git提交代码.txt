@@ -1,0 +1,120 @@
+﻿git查看本地和创建分支、上传分支、提交代码到分支、删除分支等
+2018年05月21日 10:11:19 豆豆的老公 阅读数：101更多
+个人分类： qnx
+编辑
+以下是git命令行里边的命令操作，加上了说明：
+
+Welcome to Git (version 1.9.5-preview20141217)
+ 
+ 
+Run 'git help git' to display the help index.
+Run 'git help <command>' to display help for specific commands.
+ 
+##进入项目目录下
+giscafer@LAOHOUBIN-PC /G/002_project
+$ cd Comments
+##查看远程分支有哪些
+giscafer@LAOHOUBIN-PC /G/002_project/Comments (master)
+$ git branch -a
+  doc
+* master
+  remotes/origin/HEAD -> origin/master
+  remotes/origin/doc
+  remotes/origin/master
+##查看本地分支有哪些
+giscafer@LAOHOUBIN-PC /G/002_project/Comments (master)
+$ git branch
+  doc
+* master
+##创建本地test分支
+giscafer@LAOHOUBIN-PC /G/002_project/Comments (master)
+$ git branch test
+##查看本地分支即可见到多了test分支
+giscafer@LAOHOUBIN-PC /G/002_project/Comments (master)
+$ git branch
+  doc
+* master
+  test
+##将本地test分支推送到远程服务器
+giscafer@LAOHOUBIN-PC /G/002_project/Comments (master)
+$ git push origin test
+Username for 'https://git.oschina.net': giscafer
+Password for 'https://giscafer@git.oschina.net':
+Total 0 (delta 0), reused 0 (delta 0)
+To https://git.oschina.net/giscafer/Comments.git
+ * [new branch]      test -> test
+ 
+##切换到test分支
+giscafer@LAOHOUBIN-PC /G/002_project/Comments (master)
+$ git checkout test
+Switched to branch 'test'
+ 
+##添加本地需要上传的文件夹（代码文件添加方式 git add 文件.js）
+giscafer@LAOHOUBIN-PC /G/002_project/Comments (test)
+$ git add db
+##提交信息
+giscafer@LAOHOUBIN-PC /G/002_project/Comments (test)
+$ git commit -m '提交数据结构表设计文档到test分支上'
+[test 867e877] 提交数据结构表设计文档到test分支上
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 "db/\346\225\260\346\215\256\345\272\223\350\241\250\347\273
+\223\346\236\204.docx"
+Warning: Your console font probably doesn't support Unicode. If you experience s
+trange characters in the output, consider switching to a TrueType font such as L
+ucida Console!
+ 
+##上传到远程服务器
+下边是报错信息（因为提交到分支需要给出--set-upstream origin <分支名>）
+giscafer@LAOHOUBIN-PC /G/002_project/Comments (test)
+$ git push
+fatal: The current branch test has no upstream branch.
+To push the current branch and set the remote as upstream, use
+ 
+    git push --set-upstream origin test
+ 
+##如下将提交推送到远程服务器
+giscafer@LAOHOUBIN-PC /G/002_project/Comments (test)
+$ git push --set-upstream origin test
+Username for 'https://git.oschina.net': giscafer
+Password for 'https://giscafer@git.oschina.net':
+Counting objects: 6, done.
+Delta compression using up to 8 threads.
+Compressing objects: 100% (4/4), done.
+Writing objects: 100% (4/4), 14.90 KiB | 0 bytes/s, done.
+Total 4 (delta 1), reused 0 (delta 0)
+To https://git.oschina.net/giscafer/Comments.git
+   a7e5547..867e877  test -> test
+Branch test set up to track remote branch test from origin.
+ 
+##删除本地分支（提示错误是因为当初使用这test分支）
+    giscafer@LAOHOUBIN-PC /G/002_project/Comments (test)
+$ git branch -d test
+error: Cannot delete the branch 'test' which you are currently on.
+ 
+##切换到其他分支
+giscafer@LAOHOUBIN-PC /G/002_project/Comments (test)
+$ git checkout doc
+Switched to branch 'doc'
+Your branch is up-to-date with 'origin/doc'.
+ 
+##再次删除即可
+giscafer@LAOHOUBIN-PC /G/002_project/Comments (doc)
+$ git branch -d test
+warning: deleting branch 'test' that has been merged to
+         'refs/remotes/origin/test', but not yet merged to HEAD.
+Deleted branch test (was 867e877).
+ 
+giscafer@LAOHOUBIN-PC /G/002_project/Comments (doc)
+$ git branch
+* doc
+  master
+##查看当前的origin
+$ git remote -v
+origin  https://git.oschina.net/giscafer/Comments.git (fetch)
+origin  https://git.oschina.net/giscafer/Comments.git (push)
+##删除远程的分支
+giscafer@LAOHOUBIN-PC /G/002_project/Comments (doc)
+$ git push origin :test
+Username for 'https://git.oschina.net': giscafer
+Password for 'https://giscafer@git.oschina.net':
+To https://git.oschina.net/giscafer/Comments.git
