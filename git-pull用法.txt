@@ -1,0 +1,86 @@
+﻿git-pull的用法总结
+
+2018年08月28日 17:25:37 IT老兵驿站 阅读数：1527
+ 版权声明：本文为博主原创文章，未经博主允许不得转载。	https://blog.csdn.net/chaiyu2002/article/details/82120256
+Git用法总结系列收藏于IT老兵驿站。
+
+Git：git-pull的用法总结。 
+前言
+
+本篇文章总结一下git-pull 的用法，主要过程是基于对官网的完整阅读，记录关键笔记和样例，加上自己的理解。整个过程是这样： 
+1. 认真读完官网之后，才会知道它到底有多少内容，这样要比一次一次碎片化地去查要节省很多的时间，不这样读一遍，你怎么能知道git-pull有多少功能呢，如果不知道，回头遇到了需要这个功能的时候，都不知道怎么去查，要了解这个命令的外延。 
+2. 当然，很多内容一下子是记不住的。记录适当的，或者说关键性的笔记来辅助记忆，将来可以多次去查看。 
+3. 记录学习的心得。
+
+粗读了一遍git-pull的文档，内容很多，恐怕一篇笔记不足以总结到位，可能要分为多篇笔记来总结。
+
+正文
+
+语法
+
+git pull的作用是从一个仓库或者本地的分支拉取并且整合代码。
+
+git pull [<options>] [<repository> [<refspec>…​]]
+1
+描述
+
+git pull相当于 git fetch 跟着一个 git merge FETCH_HEAD。<repository>是仓库的名字，<refspec> 是分支的名字。如果都不写，会有一个默认值。
+
+一个例子：
+
+     A---B---C master on origin
+    /
+D---E---F---G master
+    ^
+    origin/master in your repository
+1
+2
+3
+4
+5
+远程的master分支到了C，本地的开发到了G。
+
+     A---B---C origin/master
+    /         \
+D---E---F---G---H master
+1
+2
+3
+git pull之后会生成一个新的H，合并两个分支。
+
+如果发生了冲突，可以使用git reset --merge进行回退。
+
+options（选项）
+
+下面摘录几个常用的选项。
+
+–allow-unrelated-histories 
+By default, git merge command refuses to merge histories that do not share a common ancestor. This option can be used to override this safety when merging histories of two projects that started their lives independently. As that is a very rare 
+occasion, no configuration variable to enable this by default exists and will not be added.
+允许无关的历史，这个选项，更多是在更改远程仓库的时候用到。
+
+–ff 
+When the merge resolves as a fast-forward, only update the branch pointer, without creating a merge commit. This is the default behavior. 
+
+–no-ff 
+Create a merge commit even when the merge resolves as a fast-forward. This is the default behaviour when merging an annotated (and possibly signed) tag that is not stored in its natural place in refs/tags/ hierarchy. 
+
+–ff-only 
+Refuse to merge and exit with a non-zero status unless the current HEAD is already up to date or the merge can be resolved as a fast-forward.
+ff选项，这几个选项是说合并时是否开启fast-forward，快速合并，这个有在另外一篇帖子中详细讲解，这里就不赘述了。
+
+实例
+
+实例：默认使用方式
+
+git pull
+1
+按照git branch 设置的默认跟踪的服务器和分支来拉取。
+
+实例： 拉取远程服务器origin的master分支
+
+git pull origin master
+1
+总结
+
+git-pull的用法先总结到这里，还有很多需要细化的地方，一口吃不下，需要一口一口来。
