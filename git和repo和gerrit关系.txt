@@ -1,0 +1,250 @@
+﻿Git、Gerrit、Repo使用
+
+三者各自功能
+
+gii，版本管理库，在git库中没有中心服务器的概念，真正的分布式。
+repo，repo就是多个git库的管理工具。如果是多个git库同时管理，可以使用repo。当然使用gerrit，就必须用repo。
+gerrit，提交审核代码，图形化的界面，简单的操作
+使用三者管理代码流程
+
+repo init xxx初始化
+repo sync xxx同步要改动的项目
+在该项目下面repo start xxx新建一个本地分支
+做好改动以后git commit本地提交改动
+repo upload xxx将改动上传，等别人通过gerrit review
+review如果有需要改动的地方，那本地改好后，git commit –amend来保存新的修改
+repo upload 将新的改动上传
+重复5-7步，直到review通过，然后merge改动，完毕
+Git 基础操作
+
+git add 文件名将当前更改或者新增的文件加入到Git的索引中
+
+eg：git add readme.txt
+
+git commit提交当前工作空间的修改内容,，提交的时候必须用-m来输入一条提交信息
+
+eg：git commit -m "add model"
+
+git status 仓库当前的状态
+
+eg ：git status
+
+git diff 命令
+
+eg：git diff 比较的是工作目录(Working tree)和暂存区域快照(index)之间的差异，即修改之后还没有暂存起来的变化内容。
+eg：git diff master..test 显示两个分支间的差异
+eg : git diff master...test ‘master’,‘test’的共有 父分支和’test’分支之间的差异
+eg: git diff --stat 统计那些文件被改动
+git log 显示最近提交日志
+
+eg：git log 如果需要一行显示 git log --pretty=oneline
+
+git reset 版本回退
+
+eg：git reset --hard HEAD~X 会退到之前X版本
+
+如果回退之后还想回来，可以使用
+
+eg：git reset --hard "commit ID"
+
+ID可以使用
+
+eg：git reflog 查看历史命令获得ID
+
+git checkout -- file 丢弃工作区修改，撤销修改到最近一次 git commit or git add，即用版本库里的版本替换工作区的版本
+
+eg: git checkout -- readme.txt 注：不要遗忘 –
+
+git rm 删除版本库中文件
+
+eg： git rm 删除本地版本库文件，再使用 git commit 提交
+
+git checkout -b "xxx" 创建一个分支
+eg：git checkout -b dev 创建dev分支并切换到dev分支，相当于
+
+​ git branch dev 创建dev分支
+
+​ git checkout dev 切换到dev分支
+
+​ git branch -d dev 删除dev分支
+
+​ git checkout . ``#本地所有修改的。没有的提交的，都返回到原来的状态
+
+​
+
+git branch 命令会列出所有分支，并在当前分支上标*
+
+git merge 合并指定分支到当前分支
+
+eg： git merge dev 把dev分支合并到master分支上
+
+git log --graph可以看到分支合并图，如果git无法合并，必须先解决冲突才能提交。
+
+git stash 储藏当前工作现场，创建新分支修改紧急任务
+
+git stash 隐藏当前工作区
+
+git checkout master 切换到master分支
+
+git checkout -b issue 新建分支
+
+解决完，并提交后
+
+git checkout dev 切回到以前工作分支
+
+git stash list 查看隐藏工作区
+
+git stash pop 恢复当前储藏的工作区
+
+添加新功能最好新建feature分支，在上面开发，合并
+
+git pull 从其他的版本库（既可以是远程的也可以是本地的）将代码更新到本地
+
+eg：git pull origin master origin版本库的代码更新到本地的master主枝
+
+git push：将本地commit的代码更新到远程版本库中
+
+eg：git push origin git push localbranch master:refs/for/master 将本地的代码更新到orgin的远程版本库中
+
+git checkout HEAD <some file> [<some file>],清除工作目录树中的修改
+
+​
+
+打补丁
+
+将commit打包成patch
+
+修改代码
+​$ vi drivers/bluetooth/btusb.c
+
+把代码添加到git管理仓库
+git add .
+
+提交修改
+​git commit -m "some message"
+
+查看日志,获取到hash
+git log
+
+生成patch
+git format-patch -s 1bbe3c8c19
+
+或者–
+git format-patch HEAD^ # 最近的1次commit的patch
+
+测试，应用patch
+
+检查patch文件
+git apply --stat xxx.patch
+
+查看是否能应用成功
+git apply --check xxx.patch
+
+应用patch
+git am xxx.patch
+
+注：1. 之前应，git am -abort 放弃之前am信息， 有可能会遇到 .git/rebase-apply still exists but mbox given
+
+修改以及commit并且以及push的描述
+
+修改最近一次的commit
+git commit --amend
+
+修改commit历史，
+git rebase -i HEAD~X or git rebase -i (commit -id)接着会出现
+
+ pick:*******
+
+ pick:*******
+
+ pick:*******ls
+
+将pick改为edit就可以修改，利用`git commit –amend命令
+
+最后git rebase --continue 搞定
+
+如果需要删除已经push的可以将pick改为drop
+
+​
+
+Repo
+
+repo担任角色
+
+和主代码服务器交互
+用manifest.xml管理多个git仓库
+repo init -u url -b branchname 初始化命令，主要干两件事
+
+在当前目录里面下载安装 repo，因为最初从网上下载的那个 repo 文件并不是一个完整的 repo，它主要负责初始化工作，并且在初始化完成以后将命令移交给完整的 repo 来执行
+根据命令中指定的地址（-u url）去下载项目的管理文件 manifest.xml ，这里 -b branchname 就是指的 manifest.xml 的相应 branch
+repo sync 同步所有项目
+
+repo sync project 主要干的事情是
+
+同步 .repo/manifests/,再根据最新的manifest.xml来执行操作
+找到想要下载项目，然后下载项目
+repo start branch project
+
+如果希望这个 branch 是被 repo 管理起来的，那么我们就要使用 repo start 命令来新建一个 branch。
+
+比如这个 branch 改好了后，你是需要上传到 gerrit 进行 review，那么就该使用 repo start。
+
+如果只是一个临时实验性的分支的话，就无所谓了。但是使用 repo start也不会有什么坏处，所以放心的使用。
+
+如果创建失败，可以使用 repo start branch project –all
+
+删除 branch 的时候，依然是使用 git branch -d branchname
+
+repo upload project
+
+当准备好一个 commit 以后，就需要把这个改动传到 gerrit 上面等待别人 review，就需要用到 repo upload ,如果branch不是repo start 创建，就必须使用repo start 创建新的branch，再使用git cherry-pick commitd把刚才改动好的拿到repo创建的分支
+
+repo forall -c git reset --hard HEAD
+
+repo forall -p =c git branch
+
+repo branches 查看当前有多少分支
+
+Gerrit
+
+Review流程
+
+上传代码
+reviewer review 当change +2 就可以merge ，但是在+2之前，先有普通reviewer查看+1，以减轻主reviewer负担
+verify：可以人工完成，也可以用自动化工具，如自动化编译，自动化测试
+merge：通过review之后，就可以merge change，保存到中心代码仓库。如果代码有冲突，需要手动处理再重新上传
+从 gerrit 上面下载一个正在 review 的 change
+
+有时候，需要将一个还没有merge 的 change 下载下来，这时，可以到一个 change 的页面，里面有 download 的地方，里面有很多下载选项。其中 cherry-pick 是比较常用的方式，你选了下载方式后，gerrit 会智能的生成相应的命令，只需要复制下来，然后在项目目录下面执行这个命令就可以了。
+
+比较不同的 patch set
+
+每个 change 通常需要重复“review - 改代码 - 上传新 patch”多次才能最终完成，每一次上传就称为一个 patch。gerrit 会方便的把你的改动内容列出来方便 review，而且你还可以选择比较不同的 patch set，在一个change 的页面，仔细看看还是比较容易找到地方。
+
+查找 change
+
+gerrit 在页面右上角有一个搜索框，通过搜索匹配，你可以找到你想要的 change。比如 owner，project，status，branch 等等。比如：
+
+status:open project:xxx
+
+owener:”xxxxx
+
+安卓原生编译
+
+source ./build/envsetup.shor. ./build/envsetup.sh```</li> 
+<li>```lunch
+make ...
+快捷方式 
+croot：用于改变当前路径到Android根目录。
+m：用于从Android根目录开始编译。
+mm：用于编译当前目录下的所有模块。
+mmm：用于编译特定目录下的所有模块。
+cgrep：用于在C/C++文件中查找。
+jgrep：用于在Java文件中查找。
+resgrep：用于在资源文件中查找。
+godir：用于跳转到某个目录。
+--------------------- 
+作者：pen_cil 
+来源：CSDN 
+原文：https://blog.csdn.net/pen_cil/article/details/79762722 
+版权声明：本文为博主原创文章，转载请附上博文链接！
