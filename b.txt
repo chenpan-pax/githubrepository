@@ -1,221 +1,65 @@
-﻿C extern用法
-私密 2019年01月15日 14:48:23 豆豆的老公 阅读数：7更多
-个人分类： Linux
-编辑
-变量
+﻿GCC编译多个C文件
+2018年08月14日 10:28:31 dearbaba_8520 阅读数：280
+原文地址为：GCC编译多个C文件
 
-unsigned long tpstatecp=1;
+下午做了一个小的程序，定义了三个文件：getop.h,getop.c,calcDemo.c
 
-extern unsigned long tpstatecp;
+显然getop.h是针对getop.c的，而在calcDemo.c中要调用到getop.c中的东西。
 
-函数
+首先给出每个文件的结构图,为了更简单的说明，函数都空实现。
 
-int fwu_get_image_firmware_id(unsigned int *fw_id)
+getop.h:
 
-{
-
-..............................
-
-}
-
-extern int fwu_get_image_firmware_id(unsigned int *fw_id);      
-
-指示C或者C＋＋函数的调用规范。 
-
-比如在C＋＋中调用C库函数，就需要在C＋＋程序中用extern “C”声明要引用的函数。这是给链接器用的，告诉链接器在链接的时候用C函数规范来链接。主要原因是C＋＋和C程序编译完成后在目标代码中命名规则不同。
-
-extern "C++" {
-typedef basic_string
-string; typedef basic_string
-
-wstring; } // extern "C++"
-
-看一些程序的时候老是有
-“#ifdef __cplusplus
-extern "C" {
-#endif”的定义，搞搞清楚是怎么回事：
-
-Microsoft-Specific Predefined Macros
-__cplusplus Defined for C++ programs only. 
-意思是说，如果是C++程序，就使用
-extern "C"{
-而这个东东，是指在下面的函数不使用的C++的名字修饰，而是用C的
-
-The following code shows a header file which can be used by C and C++
-
-client applications:
-// MyCFuncs.h
-#ifdef __cplusplus
-extern "C" { //only need to export C interface if
-// used by C++ source code
+#ifndef _H_GETOP
+#define _H_GETOP
+ int getch(void);
+ void ungetch(int c);
+ int getop(char s[]);
 #endif
 
-__declspec( dllimport ) void MyCFunc();
-__declspec( dllimport ) void AnotherCFunc();
+getop.c
 
-#ifdef __cplusplus
-}
-#endif
+ 
 
-当我们想从C++中调用C的库时，（注，驱动是用C写的，连new、delete也不能用,郁闷）不能仅仅说明 一个外部函数，因为调用C函数的编译代码和调用C++函数的编译代码是不同的。如果你仅说明一个外部函数， C++编译器假定它是
-
-C++的函数编译成功了，但当你连接时会发现很可爱的错误。
-解决的方法就是指定它为C函数： 
-extern "c" 函数描述 
-指定一群函数的话： 
-extern "C"{ 
-n个函数描述 
-} 
-如果想C和C++混用的话： 
-#ifdef _cplusplus 
-extern "C"{ 
-#endif 
-n个函数描述 
-#ifdef _cplusplus 
-} 
-#endif
-
-extern "C"表示编译生成的内部符号名使用C约定。
-
-    C++支持函数重载，而C不支持，两者的编译规则也不一样。函数被C++编译后在符号库中的名字与C语言的不同。例如，假设某个函数的原型为： void foo( int x, int y ); 该函数被C编译器编译后在符号库中的名字可能为_foo，而C++编译器则会产生像_foo_int_int之类的名字（不同的编译器可能生成的名字不 同，但是都采用了相同的机制，生成的新名字称为“mangled name”）。_foo_int_int这样的名字包含了函数名、函数参数数量及类型信息，C++就是靠这种机制来实现函数重载的。下面以例子说明，如何 在C++中使用C的函数，
-
-或者在C中使用C++的函数。
-//C++引用C函数的例子
-//test.c
 #include <stdio.h>
-void mytest()
+#include <ctype.h>
+#define NUMBER '0'
+int getch(void);
+void ungetch(int);
+
+
+int getop(char s[])
 {
-printf("mytest in .c file ok\n");
-}
-//main.cpp
-extern "C"
-{
-void mytest();
-}
-int main()
-{
-mytest();
-return 0;
+ return 0;
+
 }
 
-//在C中引用C++函数
-在C中引用C++语言中的函数和变量时，C++的函数或变量要声明在extern "C"{}里，但是在C语言中不能使用extern "C"，否则编译出错。
-//test.cpp
+#define BUFSIZE 100
+char buf[BUFSIZE];
+int bufp =0;
+
+int getch(void)
+{
+　　return 0;
+}
+
+void ungetch(int c)
+{
+
+}
+
+calcDemo.c
+
 #include <stdio.h>
-extern "C"
-{
-void mytest()
-{
-printf("mytest in .cpp file ok\n");
-}
-}
-//main.c
-void mytest();
-int main()
-{
-mytest();
-return 0;
-}
-//综合使用
-一般我们都将函数声明放在头文件，当我们的函数有可能被C或C++使用时，我们无法确定是否要将函数声明在extern "C"里，所以，我们应该添加
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-//函数声明
-#ifdef __cplusplus
-}
-#endif
-如果我们注意到，很多头文件都有这样的用法，比如string.h，等等。
-//test.h
-#ifdef __cplusplus
-#include <iostream>
-using namespace std;
-extern "C"
-{
-#endif
-void mytest();
-#ifdef __cplusplus
-}
-#endif
-这样，可以将mytest()的实现放在.c或者.cpp文件中，可以在.c或者.cpp文件中include "test.h"后使用头文件里面的函数，而不会出现编译错误。
-//test.c
-#include "test.h"
-void mytest()
-{
-#ifdef __cplusplus
-cout << "cout mytest extern ok " << endl;
-#else
-printf("printf mytest extern ok n");
-#endif
-}
-//main.cpp
-#include "test.h"
-int main()
-{
-mytest();
-return 0;
-}
+#include <stdlib.h>
+#include "getop.h" //只需这样引用即可
 
-extern "C" 的用意 
-前些天，编程序是用到了很久以前写的C程序，想把里面的函数利用起来，连接发现出现了找不到具体函数的错误：
+ 
 
-以下是假设旧的C程序库
+最后，即是利用gcc来编译这几个文件：
 
-C的头文件
+gcc getop.c calcDemo.c -o output.out
 
-/*-----------c.h--------------*/#ifndef _C_H_#define _C_H_extern int
+编译后的目标文件即为：output.out
 
-add(int x, int y);#endif
-C的源文件
-
-/*-----------c.c--------------*/int add(int x, int y){ return x+y;}
-C++的调用
-
-/*-----------cpp.cpp--------------*/#include "c.h"void main(){ add
-
-(1, 0);}
-这样编译会产生错误cpp.obj : error LNK2001: unresolved external symbol "int __cdecl add(int,int)" (?add@@YAHHH@Z)，原因是找不到add的目标模块这才令我想起C++重载的函数命名方式和C函数的命名方式，让我们回顾一下：C中函数编译 后命名会在函数名前加以"_",比如add函数编译成obj文件时的实际命名为_add，而c++命名则不同，为了实现函数重载同样的函数名add因参数 的不同会被编译成不同的名字
-
-例如
-int add(int , int)==>add@@YAHHH@Z,
-
-float add(float , float )==>add@@YAMMM@Z,
-
-以上是VC6的命名方式，不同的编译器会不同，总之不同的参数同样的函数名将编译成不同目标名，以便于函数重载是调用具体的函数。
-
-编译cpp.cpp中编译器在cpp文件中发现add(1, 0);的调用而函数声明为extern int add(int x, int y);编译器就决定去找add@@YAHHH@Z，可惜他找不到，因为C的源文件把extern int add(int x, int y);编译成_add了；为了解决这个问题C++采用了extern "C",这就是我们的主题，想要利用以前的C程序库，那么你就要学会它，我们可以看以下标准头文件你会发现，很多头文件都有以下的结构
-
-#ifndef __H#define __H#ifdef __cplusplusextern "C" {#endifextern int f1(int, int);extern int f2(int, int);extern int f3(int, int);
-
-#ifdef __cplusplus}#endif#endif /*__H*/如果我们仿制该头文件可以得到
-
-#ifndef _C_H_#define _C_H_#ifdef __cplusplusextern "C" {#endifextern
-
-int add(int, int);#ifdef __cplusplus}#endif#endif /* _C_H_ */ 这样编译
-
-/*-----------c.c--------------*/
-int add(int x, int y){
-return x+y;
-}
-
-
-这时源文件为*.c，__cplusplus没有被定义，extern "C" {}这时没有生效对于C他看到只是extern int add(int, int);add函数编译成_add(int, int);
-
-而编译c++源文件
-
-/*-----------cpp.cpp--------------*/
-#include "c.h"
-void main()
-{
-add(1, 0);
-}
-这时源文件为*.cpp,__cplusplus被定义,对于C++他看到的是extern "C" {extern int add(int, int);}编译器就会知道 add(1, 0);调用的C风格的函数，就会知道去c.obj中找_add(int, int)而不是add@@YAHHH@Z；这也就为什么DLL中常看见extern "C" {}，windows是采用C语言编制他首先要考虑到C可以正确调用这些DLL，而用户可能会使用C++而extern "C" {}就会发生作用
-
-数组
-
-unsigned char image_raw_idm[6];    
-
-extern unsigned char image_raw_idm[6];
-      for(q=0;q<6;++q) 
-    image_raw_idm[q] = fwu->config_id[q];
+然后执行：./output.out即可
